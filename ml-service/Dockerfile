@@ -13,8 +13,8 @@ COPY app.py .
 
 # Pre-download the model into the image so cold starts don't re-fetch it.
 RUN python -c "from transformers import AutoModelForSequenceClassification, AutoTokenizer; \
-    AutoTokenizer.from_pretrained('webis/argument-quality-ibm-reproduced'); \
-    AutoModelForSequenceClassification.from_pretrained('webis/argument-quality-ibm-reproduced')" \
+    AutoTokenizer.from_pretrained('FareehaAly/fator-argument-quality'); \
+    AutoModelForSequenceClassification.from_pretrained('FareehaAly/fator-argument-quality')" \
     && chmod -R 777 /app
 
 EXPOSE 7860

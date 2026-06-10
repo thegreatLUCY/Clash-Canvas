@@ -67,8 +67,8 @@ One page, two API routes, four AI calls total per debate. That's the whole syste
 ### The ML service (`ml-service/`)
 
 A tiny Python FastAPI app meant to run as a **free HuggingFace Space**. It loads
-`webis/argument-quality-ibm-reproduced` — a BERT model reproducing IBM Project
-Debater's argument-quality research — once at boot, and exposes `POST /score`:
+`FareehaAly/fator-argument-quality` — a DistilBERT model fine-tuned on the
+Feedback Prize argument-effectiveness corpus — once at boot, and exposes `POST /score`:
 send `{ topic, texts }`, get back a 0–1 quality score per argument. The Next.js
 app finds it via the `STRENGTH_API_URL` env var.
 

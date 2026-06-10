@@ -1,8 +1,9 @@
 import { Turn } from '@/lib/types';
 
 // The "real ML" leg of the hybrid: argument strength comes from a pre-trained
-// HuggingFace model (webis/argument-quality-ibm-reproduced) running in a free
-// Python service — see ml-service/ in this repo, deployed to HF Spaces.
+// HuggingFace model (FareehaAly/fator-argument-quality, a DistilBERT fine-tuned
+// for argument effectiveness) running in a free Python service — see
+// ml-service/ in this repo, deployed to HF Spaces.
 //
 // The contract is tiny on purpose: POST { topic, texts: [...] } and get back
 // { scores: [0..1, ...] }. If the service is down, cold-starting, or not

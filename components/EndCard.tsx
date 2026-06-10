@@ -140,7 +140,7 @@ export function EndCard({
             <p className="mb-3 font-mono text-[9px] tracking-[0.35em] text-bone-dim uppercase">
               Round-by-round · scored by{' '}
               <span className="text-gold">
-                {verdict.strengthSource === 'ml' ? 'BERT argument-quality model' : 'Gemini judge'}
+                {verdict.strengthSource === 'ml' ? 'DistilBERT effectiveness model' : 'Gemini judge'}
               </span>
             </p>
             <div className="space-y-2">
@@ -232,7 +232,7 @@ export function EndCard({
             <span>Llama 3.3 vs Llama 4 · 4 rounds</span>
             <span>
               {verdict.strengthSource === 'ml'
-                ? 'Strength: IBM-Debater BERT · Fallacies: Gemini'
+                ? 'Strength: DistilBERT (Feedback Prize) · Fallacies: Gemini'
                 : 'Verdict: Gemini judge'}
             </span>
           </div>

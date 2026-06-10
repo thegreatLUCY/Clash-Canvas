@@ -10,7 +10,7 @@
 ![Vercel](https://img.shields.io/badge/Vercel-deployed-black?logo=vercel)
 ![Groq](https://img.shields.io/badge/Groq-Llama_3.3_vs_Llama_4-F55036)
 ![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash_judge-4285F4?logo=googlegemini&logoColor=white)
-![HuggingFace](https://img.shields.io/badge/🤗_HuggingFace-BERT_scorer-FFD21E)
+![HuggingFace](https://img.shields.io/badge/🤗_HuggingFace-DistilBERT_scorer-FFD21E)
 ![Status](https://img.shields.io/badge/status-MVP_1-orange)
 
 Type any debate topic — *"Pineapple belongs on pizza"*, *"Billionaires should not exist"* —
@@ -27,14 +27,14 @@ fouls with quoted evidence, and stamps out a **shareable verdict card** built fo
 ## 💥 What this does
 
 LLM demos where "two AIs talk to each other" are easy. ClashCanvas goes further:
-every argument is **measured**. A real pre-trained BERT model (reproducing IBM
-Project Debater's argument-quality research) scores each turn 0–100, while an
+every argument is **measured**. A real pre-trained DistilBERT model (fine-tuned on the
+Feedback Prize argument-effectiveness corpus) scores each turn 0–100, while an
 independent Gemini judge hunts logical fallacies and quotes the exact offending
 sentence as evidence.
 
 - 🔴 **Side A (For)** — Llama 3.3 70B, fighting out of the scarlet corner
 - 🔵 **Side B (Against)** — Llama 4 Scout, fighting out of the cobalt corner
-- ⚖️ **The judges** — a BERT regression model + Gemini 2.5 Flash, neither of which fought
+- ⚖️ **The judges** — a DistilBERT effectiveness model + Gemini 2.5 Flash, neither of which fought
 
 The whole thing streams token-by-token over Server-Sent Events and costs **$0 to run**
 at low traffic — every layer rides a free tier.
@@ -56,13 +56,13 @@ at low traffic — every layer rides a free tier.
 │ Verdict card     │          │  moderation ✓        │ ──▶ Groq · 8B classifier (topic check)
 └─────────────────┘   POST   ├──────────────────────┤
         ▲          ───────▶  │ /api/analyze         │ ──▶ Gemini 2.5 Flash (fallacy judge)
-        └──verdict JSON────── │  (runs in parallel)  │ ──▶ HF Space · BERT (strength scores)
+        └──verdict JSON────── │  (runs in parallel)  │ ──▶ HF Space · DistilBERT (scores)
                               └──────────────────────┘
 ```
 
 - **Debate streaming** — Server-Sent Events, parsed by hand in ~15 lines (`lib/client/useDebate.ts`)
 - **Fallacy detection** — Gemini with structured output (zod schema → guaranteed JSON)
-- **Strength scoring** — `webis/argument-quality-ibm-reproduced` BERT model served from a
+- **Strength scoring** — `FareehaAly/fator-argument-quality` DistilBERT model served from a
   free HuggingFace Space (`ml-service/`), with automatic fallback to the judge if it's napping
 - **Share card** — `html-to-image` rasterizes the card DOM node to a retina PNG, fully client-side
 
@@ -78,7 +78,7 @@ npm run dev                  # → http://localhost:3000
 ```
 
 Two free keys make it fully functional: [Groq](https://console.groq.com) (debaters + moderation)
-and [Gemini](https://aistudio.google.com/apikey) (judge). The BERT scorer is optional —
+and [Gemini](https://aistudio.google.com/apikey) (judge). The DistilBERT scorer is optional —
 deploy `ml-service/` to a free HF Space and set `STRENGTH_API_URL`.
 
 **Dev toggles** in `.env.local`: `ENABLE_MODERATION=false` · `ENABLE_RATE_LIMIT=false`

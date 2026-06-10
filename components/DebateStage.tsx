@@ -103,7 +103,7 @@ export function DebateStage({
             <div className="space-y-2 text-left font-mono text-[11px] tracking-wider text-bone-dim uppercase">
               {[
                 ['Transcript locked', `${turns.length} arguments captured`],
-                ['BERT argument-quality model', 'scoring every argument 0–100'],
+                ['DistilBERT effectiveness model', 'scoring every argument 0–100'],
                 ['Gemini judge', 'hunting fallacies · quoting evidence'],
                 ['Verdict engine', 'aggregating scores · declaring a winner'],
               ].map(([name, detail], i) => (
