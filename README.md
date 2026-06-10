@@ -1,23 +1,97 @@
-# ClashCanvas ⚔️
+<div align="center">
 
-Type any topic. Watch two AI models fight it out live. Get an ML-scored verdict
-with fallacy counts and a shareable card.
+# ⚔️ ClashCanvas
 
-- **Plan:** [docs/ClashCanvas_MVP_Plan.md](docs/ClashCanvas_MVP_Plan.md)
-- **How it works:** [ARCHITECTURE.md](ARCHITECTURE.md)
+### Type a topic. Two AIs fight it out live. The ML decides who won.
 
-## Run it locally
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwindcss&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-deployed-black?logo=vercel)
+![Groq](https://img.shields.io/badge/Groq-Llama_3.3_vs_Llama_4-F55036)
+![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash_judge-4285F4?logo=googlegemini&logoColor=white)
+![HuggingFace](https://img.shields.io/badge/🤗_HuggingFace-BERT_scorer-FFD21E)
+![Status](https://img.shields.io/badge/status-MVP_1-orange)
 
-1. `cp .env.example .env.local`
-2. Fill in the two free API keys (links in the file):
-   - `GROQ_API_KEY` — powers both debaters + moderation
-   - `GOOGLE_GENERATIVE_AI_API_KEY` — powers the judge
-3. `npm install && npm run dev` → http://localhost:3000
+Type any debate topic — *"Pineapple belongs on pizza"*, *"Billionaires should not exist"* —
+and watch **two different AI models** argue it across 4 rounds in real time.
+When the dust settles, an **ML pipeline** scores every argument, counts the logical
+fouls with quoted evidence, and stamps out a **shareable verdict card** built for Twitter/X.
 
-The app works fully with just those two keys (strength scores fall back to the
-judge). To enable real-ML strength scoring, deploy `ml-service/` to a free
-HuggingFace Space and set `STRENGTH_API_URL`.
+**Live app:** [clashcanvas.thegreatlucy.link](https://clashcanvas.thegreatlucy.link)
 
-## Dev toggles
+</div>
 
-In `.env.local`: `ENABLE_MODERATION=false` / `ENABLE_RATE_LIMIT=false`.
+---
+
+## 💥 What this does
+
+LLM demos where "two AIs talk to each other" are easy. ClashCanvas goes further:
+every argument is **measured**. A real pre-trained BERT model (reproducing IBM
+Project Debater's argument-quality research) scores each turn 0–100, while an
+independent Gemini judge hunts logical fallacies and quotes the exact offending
+sentence as evidence.
+
+- 🔴 **Side A (For)** — Llama 3.3 70B, fighting out of the scarlet corner
+- 🔵 **Side B (Against)** — Llama 4 Scout, fighting out of the cobalt corner
+- ⚖️ **The judges** — a BERT regression model + Gemini 2.5 Flash, neither of which fought
+
+The whole thing streams token-by-token over Server-Sent Events and costs **$0 to run**
+at low traffic — every layer rides a free tier.
+
+## 📸 Screenshots
+
+| Landing | Live debate | Verdict card |
+|:---:|:---:|:---:|
+| ![Landing page](docs/screenshots/landing.png) | ![Live streaming debate](docs/screenshots/debate.png) | ![Shareable verdict card](docs/screenshots/verdict-card.png) |
+| One input, one button | 4 rounds stream in live | ML-scored, PNG-exportable |
+
+## 🧠 How it works
+
+```
+ Browser                      Next.js (Vercel)                    Free tiers
+┌─────────────────┐   POST   ┌──────────────────────┐
+│ Topic form       │ ───────▶ │ /api/debate          │ ──▶ Groq · Llama 3.3 (Side A)
+│ Live arena       │ ◀─SSE─── │  rate limit ✓        │ ──▶ Groq · Llama 4 (Side B) 
+│ Verdict card     │          │  moderation ✓        │ ──▶ Groq · 8B classifier (topic check)
+└─────────────────┘   POST   ├──────────────────────┤
+        ▲          ───────▶  │ /api/analyze         │ ──▶ Gemini 2.5 Flash (fallacy judge)
+        └──verdict JSON────── │  (runs in parallel)  │ ──▶ HF Space · BERT (strength scores)
+                              └──────────────────────┘
+```
+
+- **Debate streaming** — Server-Sent Events, parsed by hand in ~15 lines (`lib/client/useDebate.ts`)
+- **Fallacy detection** — Gemini with structured output (zod schema → guaranteed JSON)
+- **Strength scoring** — `webis/argument-quality-ibm-reproduced` BERT model served from a
+  free HuggingFace Space (`ml-service/`), with automatic fallback to the judge if it's napping
+- **Share card** — `html-to-image` rasterizes the card DOM node to a retina PNG, fully client-side
+
+Full plain-English breakdown: **[ARCHITECTURE.md](ARCHITECTURE.md)**
+
+## 🚀 Run it locally
+
+```bash
+git clone https://github.com/thegreatLUCY/Clash-Canvas.git
+cd Clash-Canvas && npm install
+cp .env.example .env.local   # add your 2 free keys (links inside)
+npm run dev                  # → http://localhost:3000
+```
+
+Two free keys make it fully functional: [Groq](https://console.groq.com) (debaters + moderation)
+and [Gemini](https://aistudio.google.com/apikey) (judge). The BERT scorer is optional —
+deploy `ml-service/` to a free HF Space and set `STRENGTH_API_URL`.
+
+**Dev toggles** in `.env.local`: `ENABLE_MODERATION=false` · `ENABLE_RATE_LIMIT=false`
+
+## 🔮 Roadmap (MVP 2)
+
+Deep Mode with richer analysis · semantic clash graph · rhetorical fingerprints ·
+persona picker · community voting vs. the ML verdict
+
+---
+
+<div align="center">
+
+*Built as a learning project — see the original brief in [docs/ClashCanvas_MVP_Plan.md](docs/ClashCanvas_MVP_Plan.md)*
+
+</div>

@@ -8,10 +8,12 @@ import { DebateEvent, ROUND_NAMES, Side, Turn } from '@/lib/types';
 // Allow up to 5 minutes — a full 8-turn debate takes a while even on Groq.
 export const maxDuration = 300;
 
-// Two different models on purpose: "Llama vs GPT" is part of the show.
-// Both run on Groq's free tier. Override per side in .env.local if you like.
+// Two different models on purpose: Llama 3.3 vs Llama 4 Scout — old guard vs
+// new generation. Both on Groq's free tier. Override per side in .env.local.
+// Side B must be a NON-reasoning model: reasoning models (like gpt-oss) can
+// spend the whole token budget "thinking" and emit zero visible words.
 const MODEL_A = process.env.DEBATER_A_MODEL ?? 'llama-3.3-70b-versatile';
-const MODEL_B = process.env.DEBATER_B_MODEL ?? 'openai/gpt-oss-120b';
+const MODEL_B = process.env.DEBATER_B_MODEL ?? 'meta-llama/llama-4-scout-17b-16e-instruct';
 
 function sse(event: DebateEvent): string {
   // Server-Sent Events wire format: each message is "data: <payload>\n\n".
@@ -52,18 +54,27 @@ export async function POST(req: Request) {
           for (const side of ['A', 'B'] as Side[]) {
             send({ type: 'turn-start', side, round });
 
-            const result = streamText({
-              model: groq(side === 'A' ? MODEL_A : MODEL_B),
-              system: systemPrompt(side, topic),
-              prompt: turnPrompt(side, round, transcript),
-              maxOutputTokens: 350,
-              temperature: 0.8,
-            });
-
+            // Failsafe: if a model returns nothing (hiccup, filter, empty
+            // stream), retry once. A debate where one side is silent must
+            // abort loudly, never continue hollow.
             let fullText = '';
-            for await (const delta of result.textStream) {
-              fullText += delta;
-              send({ type: 'delta', text: delta });
+            for (let attempt = 0; attempt < 2 && !fullText.trim(); attempt++) {
+              const result = streamText({
+                model: groq(side === 'A' ? MODEL_A : MODEL_B),
+                system: systemPrompt(side, topic),
+                prompt: turnPrompt(side, round, transcript),
+                maxOutputTokens: 350,
+                temperature: 0.8,
+              });
+
+              for await (const delta of result.textStream) {
+                fullText += delta;
+                send({ type: 'delta', text: delta });
+              }
+            }
+
+            if (!fullText.trim()) {
+              throw new Error(`Debater ${side} went silent in round ${round + 1}`);
             }
 
             transcript.push({ side, round, text: fullText });

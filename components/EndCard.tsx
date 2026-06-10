@@ -229,7 +229,7 @@ export function EndCard({
 
           {/* Footer: name the machinery — this is the portfolio flex */}
           <div className="mt-7 flex items-center justify-between border-t border-bone/15 pt-4 font-mono text-[8px] tracking-[0.25em] text-bone-dim uppercase">
-            <span>Llama 3.3 vs GPT-OSS · 4 rounds</span>
+            <span>Llama 3.3 vs Llama 4 · 4 rounds</span>
             <span>
               {verdict.strengthSource === 'ml'
                 ? 'Strength: IBM-Debater BERT · Fallacies: Gemini'

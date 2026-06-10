@@ -8,8 +8,8 @@
  Browser                      Next.js server (Vercel)              Outside world
 ┌─────────────────┐   POST   ┌──────────────────────┐
 │ TopicForm        │ ───────▶ │ /api/debate          │ ──▶ Groq: Llama 3.3 (Side A)
-│ DebateStage      │ ◀─SSE─── │  rate limit ✓        │ ──▶ Groq: GPT-OSS 120B (Side B)
-│ EndCard + share  │          │  moderation ✓        │ ──▶ Groq: Llama Guard (topic check)
+│ DebateStage      │ ◀─SSE─── │  rate limit ✓        │ ──▶ Groq: Llama 4 Scout (Side B)
+│ EndCard + share  │          │  moderation ✓        │ ──▶ Groq: 8B classifier (topic check)
 └─────────────────┘   POST   ├──────────────────────┤
         ▲          ───────▶  │ /api/analyze         │ ──▶ Gemini 2.5 Flash (judge)
         └──verdict JSON────── │  runs both in        │ ──▶ HF Space (strength model)
@@ -59,8 +59,8 @@ One page, two API routes, four AI calls total per debate. That's the whole syste
 - **`lib/analysis/strength.ts`** — calls the real ML model (see below) and falls
   back to the judge's scores if it's unreachable. The product never breaks because
   the ML service is napping.
-- **`lib/guardrails/moderation.ts`** — Llama Guard checks the topic before any
-  debate starts. Toggle: `ENABLE_MODERATION=false`.
+- **`lib/guardrails/moderation.ts`** — a fast classifier model checks the topic
+  before any debate starts. Toggle: `ENABLE_MODERATION=false`.
 - **`lib/guardrails/rateLimit.ts`** — N debates per IP per hour, in memory.
   Toggle: `ENABLE_RATE_LIMIT=false`.
 
