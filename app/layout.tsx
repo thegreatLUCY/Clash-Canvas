@@ -14,10 +14,30 @@ const newsreader = Newsreader({
 });
 const martian = Martian_Mono({ subsets: ["latin"], variable: "--font-martian" });
 
+// metadataBase turns relative image paths into absolute URLs — link previews
+// (WhatsApp, Twitter, iMessage) refuse relative paths.
+const TITLE = "ClashCanvas — two AIs walk into a debate";
+const DESCRIPTION =
+  "Type any topic. Watch two AI models fight it out live. Get an ML-scored verdict with fallacy counts and a shareable card.";
+
 export const metadata: Metadata = {
-  title: "ClashCanvas — two AIs walk into a debate",
-  description:
-    "Type any topic. Watch two AI models fight it out live. Get an ML-scored verdict with fallacy counts and a shareable card.",
+  metadataBase: new URL("https://clashcanvas.thegreatlucy.link"),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/",
+    siteName: "ClashCanvas",
+    type: "website",
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "ClashCanvas — AI vs AI debate arena" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og.jpg"],
+  },
 };
 
 export default function RootLayout({
