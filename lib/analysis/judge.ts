@@ -50,6 +50,9 @@ export async function judgeDebate(topic: string, transcript: Turn[]): Promise<Ju
 
   const { output } = await generateText({
     model: google('gemini-2.5-flash'),
+    // Gemini's free tier throws transient 503s under load; retry harder
+    // before giving up — a failed judge kills the whole verdict.
+    maxRetries: 5,
     output: Output.object({ schema: judgeSchema }),
     system: [
       'You are a strict, impartial debate judge with expertise in informal logic.',
