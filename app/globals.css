@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ── ClashCanvas design tokens — "fight night" ──────────────────────────────
+   A dark arena. Side A fights in scarlet, Side B in cobalt. Bone-white type,
+   one gold accent reserved for verdicts. Every color in the app lives here. */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-arena: #0b0a0e;
+  --color-arena-2: #15121b;
+  --color-arena-3: #1f1a28;
+  --color-bone: #f2ede3;
+  --color-bone-dim: #a8a094;
+  --color-side-a: #ff2e4c;
+  --color-side-a-dim: #5c1622;
+  --color-side-b: #2e7bff;
+  --color-side-b-dim: #16305c;
+  --color-gold: #f5c84c;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-anton);
+  --font-quote: var(--font-newsreader);
+  --font-mono: var(--font-martian);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-arena);
+  color: var(--color-bone);
+  font-family: var(--font-quote), Georgia, serif;
+  overflow-x: hidden;
+}
+
+/* Film grain over everything — kills the "flat AI gradient" look. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Motion ─────────────────────────────────────────────────────────────── */
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slam-in {
+  0% { opacity: 0; transform: scale(1.6) rotate(-4deg); }
+  60% { opacity: 1; transform: scale(0.96) rotate(-2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-2deg); }
+}
+
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+@keyframes bar-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes deliberate {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+.rise-in { animation: rise-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.slam-in { animation: slam-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+
+.streaming-caret::after {
+  content: "▌";
+  margin-left: 2px;
+  animation: caret-blink 0.8s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; }
 }
