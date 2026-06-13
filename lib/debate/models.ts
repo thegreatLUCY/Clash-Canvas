@@ -52,6 +52,11 @@ export function isAllowedModel(id: unknown): id is string {
   return typeof id === 'string' && MODEL_IDS.has(id);
 }
 
+// Human-friendly name for a slug (for the result card). Falls back to the slug.
+export function modelLabel(id: string): string {
+  return MODEL_OPTIONS.find((m) => m.id === id)?.label ?? id;
+}
+
 // Defaults the app boots with — a flagship clash: GPT-5.5 vs Claude Opus 4.8.
 // Override per side via env; otherwise these reliable picks.
 const DEFAULT_A = isAllowedModel(process.env.DEBATER_A_MODEL)

@@ -50,6 +50,7 @@ export interface Verdict {
 
 // Events sent over the SSE stream from /api/debate to the browser.
 export type DebateEvent =
+  | { type: 'meta'; models: { a: string; b: string } } // model labels, sent once up front
   | { type: 'turn-start'; side: Side; round: number }
   | { type: 'delta'; text: string } // a few characters of the current turn
   | { type: 'turn-end' }

@@ -20,6 +20,7 @@ export function useDebate() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [topic, setTopic] = useState('');
   const [turns, setTurns] = useState<Turn[]>([]);
+  const [models, setModels] = useState<{ a: string; b: string } | null>(null);
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +28,7 @@ export function useDebate() {
     setPhase('debating');
     setTopic(newTopic);
     setTurns([]);
+    setModels(null);
     setVerdict(null);
     setError(null);
 
@@ -65,7 +67,9 @@ export function useDebate() {
           if (!message.startsWith('data: ')) continue;
           const event = JSON.parse(message.slice(6)) as DebateEvent;
 
-          if (event.type === 'turn-start') {
+          if (event.type === 'meta') {
+            setModels(event.models);
+          } else if (event.type === 'turn-start') {
             transcript.push({ side: event.side, round: event.round, text: '' });
             setTurns([...transcript]);
           } else if (event.type === 'delta') {
@@ -95,9 +99,10 @@ export function useDebate() {
   const reset = useCallback(() => {
     setPhase('idle');
     setTurns([]);
+    setModels(null);
     setVerdict(null);
     setError(null);
   }, []);
 
-  return { phase, topic, turns, verdict, error, start, reset };
+  return { phase, topic, turns, models, verdict, error, start, reset };
 }

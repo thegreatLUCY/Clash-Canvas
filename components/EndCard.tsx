@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
-import { ROUND_NAMES, Verdict } from '@/lib/types';
+import { ROUND_NAMES, Turn, Verdict } from '@/lib/types';
 
 // The money shot. Everything in the app builds to this card.
 // The card itself lives in a ref'd <div> so the share buttons can rasterize
@@ -13,14 +13,23 @@ const ROUND_SHORT = ['Opening', 'Rebuttal', 'Counter', 'Closing'];
 export function EndCard({
   topic,
   verdict,
+  turns,
+  models,
   onRestart,
 }: {
   topic: string;
   verdict: Verdict;
+  turns: Turn[];
+  models: { a: string; b: string } | null;
   onRestart: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [showTranscript, setShowTranscript] = useState(false);
+
+  // Names the real fighters on the card. Falls back gracefully if the meta
+  // event was missed for any reason.
+  const matchup = models ? `${models.a} vs ${models.b}` : 'AI vs AI';
 
   const foulsA = verdict.fallacies.filter((f) => f.side === 'A');
   const foulsB = verdict.fallacies.filter((f) => f.side === 'B');
@@ -229,7 +238,7 @@ export function EndCard({
 
           {/* Footer: name the machinery — this is the portfolio flex */}
           <div className="mt-7 flex items-center justify-between border-t border-bone/15 pt-4 font-mono text-[8px] tracking-[0.25em] text-bone-dim uppercase">
-            <span>Llama 3.3 vs Llama 4 · 4 rounds</span>
+            <span>{matchup} · 4 rounds</span>
             <span>
               {verdict.strengthSource === 'ml'
                 ? 'Strength: DistilBERT (Feedback Prize) · Fallacies: Gemini'
@@ -262,12 +271,50 @@ export function EndCard({
           Post on X
         </button>
         <button
+          onClick={() => setShowTranscript((v) => !v)}
+          className="cursor-pointer border border-bone/40 px-6 py-3 font-display tracking-wide uppercase transition-transform hover:scale-[1.04]"
+        >
+          {showTranscript ? 'Hide debate' : 'Read the debate'}
+        </button>
+        <button
           onClick={onRestart}
           className="cursor-pointer px-6 py-3 font-mono text-xs tracking-widest text-bone-dim uppercase hover:text-bone"
         >
           New fight →
         </button>
       </div>
+
+      {/* ── Full transcript, on demand ───────────────────────────────────── */}
+      {showTranscript && (
+        <div className="mt-8 w-full max-w-2xl border border-bone/15 bg-arena-2/40 p-6 sm:p-8">
+          <p className="mb-5 font-mono text-[10px] tracking-[0.35em] text-bone-dim uppercase">
+            Full transcript · {matchup}
+          </p>
+          <div className="space-y-5">
+            {turns.map((t, i) => {
+              const isA = t.side === 'A';
+              return (
+                <div key={i} className={isA ? 'text-left' : 'text-right'}>
+                  <p
+                    className="font-mono text-[9px] tracking-[0.25em] uppercase"
+                    style={{ color: isA ? 'var(--color-side-a)' : 'var(--color-side-b)' }}
+                  >
+                    {isA ? `Side A · ${models?.a ?? 'For'}` : `Side B · ${models?.b ?? 'Against'}`}
+                    <span className="text-bone-dim"> · {ROUND_NAMES[t.round]}</span>
+                  </p>
+                  <p
+                    className={`mt-1.5 inline-block max-w-[85%] border-bone/15 px-4 py-2 text-[0.9rem] leading-relaxed text-bone/90 ${
+                      isA ? 'border-l-2 bg-side-a/5' : 'border-r-2 bg-side-b/5'
+                    }`}
+                  >
+                    {t.text}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

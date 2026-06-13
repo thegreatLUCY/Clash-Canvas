@@ -9,7 +9,7 @@ import { useDebate } from '@/lib/client/useDebate';
 // idle (topic form) → debating/analyzing (the arena) → done (the verdict card).
 
 export default function Home() {
-  const { phase, topic, turns, verdict, error, start, reset } = useDebate();
+  const { phase, topic, turns, models, verdict, error, start, reset } = useDebate();
 
   if (phase === 'idle') return <TopicForm onStart={start} />;
 
@@ -28,7 +28,9 @@ export default function Home() {
     );
 
   if (phase === 'done' && verdict)
-    return <EndCard topic={topic} verdict={verdict} onRestart={reset} />;
+    return (
+      <EndCard topic={topic} verdict={verdict} turns={turns} models={models} onRestart={reset} />
+    );
 
   return <DebateStage topic={topic} turns={turns} analyzing={phase === 'analyzing'} />;
 }

@@ -1,5 +1,5 @@
 import { streamText } from 'ai';
-import { resolveDebater } from '@/lib/debate/models';
+import { resolveDebater, getActiveModels, modelLabel } from '@/lib/debate/models';
 import { systemPrompt, turnPrompt } from '@/lib/debate/prompts';
 import { isTopicAllowed } from '@/lib/guardrails/moderation';
 import { checkRateLimit, ipFromRequest } from '@/lib/guardrails/rateLimit';
@@ -46,6 +46,11 @@ export async function POST(req: Request) {
       const transcript: Turn[] = [];
 
       try {
+        // Tell the client which models are fighting, so the result card can
+        // name them instead of guessing.
+        const live = getActiveModels();
+        send({ type: 'meta', models: { a: modelLabel(live.a), b: modelLabel(live.b) } });
+
         for (let round = 0; round < ROUND_NAMES.length; round++) {
           for (const side of ['A', 'B'] as Side[]) {
             send({ type: 'turn-start', side, round });
