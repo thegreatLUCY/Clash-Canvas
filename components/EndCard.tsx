@@ -132,6 +132,11 @@ export function EndCard({
                 Side A · For
               </p>
               <p className="font-display text-6xl text-side-a">{verdict.strengthA}</p>
+              {verdict.penaltyA > 0 && (
+                <p className="font-mono text-[9px] tracking-widest text-bone-dim uppercase">
+                  −{verdict.penaltyA} fouls
+                </p>
+              )}
             </div>
             <p className="pb-2 font-mono text-[9px] tracking-[0.3em] text-bone-dim uppercase">
               Argument strength / 100
@@ -141,6 +146,11 @@ export function EndCard({
                 Side B · Against
               </p>
               <p className="font-display text-6xl text-side-b">{verdict.strengthB}</p>
+              {verdict.penaltyB > 0 && (
+                <p className="font-mono text-[9px] tracking-widest text-bone-dim uppercase">
+                  −{verdict.penaltyB} fouls
+                </p>
+              )}
             </div>
           </div>
 
@@ -149,7 +159,9 @@ export function EndCard({
             <p className="mb-3 font-mono text-[9px] tracking-[0.35em] text-bone-dim uppercase">
               Round-by-round · scored by{' '}
               <span className="text-gold">
-                {verdict.strengthSource === 'ml' ? 'DistilBERT effectiveness model' : 'Gemini judge'}
+                {verdict.strengthSource === 'ensemble'
+                  ? 'DistilBERT × Gemini ensemble'
+                  : 'Gemini judge'}
               </span>
             </p>
             <div className="space-y-2">
@@ -240,9 +252,9 @@ export function EndCard({
           <div className="mt-7 flex items-center justify-between border-t border-bone/15 pt-4 font-mono text-[8px] tracking-[0.25em] text-bone-dim uppercase">
             <span>{matchup} · 4 rounds</span>
             <span>
-              {verdict.strengthSource === 'ml'
-                ? 'Strength: DistilBERT (Feedback Prize) · Fallacies: Gemini'
-                : 'Verdict: Gemini judge'}
+              {verdict.strengthSource === 'ensemble'
+                ? 'Strength: DistilBERT × Gemini · fouls penalized'
+                : 'Verdict: Gemini judge · fouls penalized'}
             </span>
           </div>
         </div>

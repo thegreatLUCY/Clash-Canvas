@@ -36,14 +36,19 @@ export interface BestMoment {
 
 export interface Verdict {
   winner: Side | 'tie';
-  // 0-100 average argument strength per side.
+  // 0-100 final argument strength per side, AFTER the fallacy penalty.
   strengthA: number;
   strengthB: number;
+  // Points deducted from each side for the logical fouls they committed.
+  penaltyA: number;
+  penaltyB: number;
   // Round-by-round strength — one {a, b} pair per round, 0-100 each.
-  // This is the raw ML output made visible: a tug-of-war per round.
+  // The ensemble's per-round clash, made visible as a tug-of-war.
   perRound: { a: number; b: number }[];
-  // 'ml' = scored by the HuggingFace model, 'judge' = fell back to the LLM judge.
-  strengthSource: 'ml' | 'judge';
+  // How strength was scored:
+  //  'ensemble' = DistilBERT quality blended with the LLM judge's clash scores
+  //  'judge'    = ML Space was asleep, so the judge scored alone
+  strengthSource: 'ensemble' | 'judge';
   fallacies: Fallacy[];
   bestMoment: BestMoment;
 }
